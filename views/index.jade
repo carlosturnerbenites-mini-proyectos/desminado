@@ -1,0 +1,61 @@
+doctype html
+html
+	head
+		title Desminado
+		meta(name='viewport', content='initial-scale=1.0')
+		link(rel="stylesheet" href="stylesheets/bootstrap.min.css")
+		style(type='text/css').
+			html, body {
+				height: 100%;
+				margin: 0;
+				padding: 0;
+			}
+			#map {
+				height: 100%;
+			}
+	body
+
+		nav(class="navbar navbar-default navbar-fixed-top")
+			div(class="container")
+				div(class="navbar-header")
+					section
+						button.btn.btn-info.btn-lg(type='button', data-toggle='modal', data-target='#myModal') Open Modal
+						span
+							span Lat :
+							span#current_lat
+						span
+							span Lng :
+							span#current_lng
+
+		#myModal.modal.fade(role='dialog')
+			.modal-dialog
+				.modal-content
+					.modal-header
+						button.close(type='button', data-dismiss='modal') ×
+						h4.modal-title Agregar
+					.modal-body
+						section
+							form#zone(action='')
+								fieldset
+									label(for='positions') Posiciones
+									textarea#positions(name='positions', cols='30', rows='10')
+										| 4.794005674828036,-75.4002857208252+4.7908838073994415,-75.4023027420044+4.79101210360213,-75.39779663085938
+								button(type='submit') Cercar
+
+						section
+							form#bomb(action='')
+								fieldset
+									label(for='lat') Lat
+									input(type='text', name='lat', value='4.80234483976469')
+								fieldset
+									label(for='lng') Lng
+									input(type='text', name='lng', value='-75.3841495513916')
+								button(type='submit') Ubicar
+					.modal-footer
+						button.btn.btn-default(type='button', data-dismiss='modal') Volver
+
+		section#map
+		script(src="javascripts/jquery-3.1.1.min.js")
+		script(src="javascripts/app.js")
+		script(src="javascripts/bootstrap.min.js")
+		script(src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAioVIsP4V4tVrkVs57zYlezhfwRchBkoM&libraries=geometry&callback=getData" async defer)
