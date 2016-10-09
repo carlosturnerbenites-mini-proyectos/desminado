@@ -61,21 +61,25 @@ router.get('/zonas', function(req, res, next) {
 
 router.post('/mina', function(req, res, next) {
 	var data = req.body
-	console.log(data)
-	console.log(typeof data)
 	db.serialize(function() {
 		var sql_minas = db.prepare("INSERT INTO minas (deactivate,lat,lng) VALUES (?,?,?)");
 		sql_minas.run(data.deactivate,data.position.lat,data.position.lng,function(err){
 			res.json({message:"Mina Creada"})
 		})
-
+	})
+})
+router.put('/mina', function(req, res, next) {
+	var data = req.body
+	db.serialize(function() {
+		var sql_minas = db.prepare("UPDATE minas SET deactivate = ? WHERE mina_id = ?");
+		sql_minas.run(1,data.mina_id,function(err){
+			res.json({message:"Mina Desactivada"})
+		})
 	})
 })
 
 router.post('/zona', function(req, res, next) {
 	var data = req.body
-	console.log(data)
-	console.log(typeof data)
 	if(!data.positions.length) return res.json({message:"Error al crear la zona, no se enviaron coordenadas"})
 
 	db.serialize(function() {
@@ -83,10 +87,7 @@ router.post('/zona', function(req, res, next) {
 	var sql_zonas = "INSERT INTO zonas (nombre) VALUES (?)"
 	var params_sql_zonas = [data.nombre]
 	db.run(sql_zonas,params_sql_zonas,function(){
-		console.log(".-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-")
-		console.log(this.lastID)
 		var zona_id = this.lastID
-		console.log(".-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-")
 		var sql_cordenadas_zonas = db.prepare("INSERT INTO cordenadas_zonas (zona_id,lat,lng) VALUES (?,?,?)");
 		data.positions.forEach(function(position){
 			sql_cordenadas_zonas.run(zona_id,position.lat,position.lng)
@@ -94,7 +95,6 @@ router.post('/zona', function(req, res, next) {
 		sql_cordenadas_zonas.finalize();
 		return res.json({message:"Zona Creada"})
 	})
-
 	})
 })
 

@@ -2,15 +2,15 @@ var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database('db.sqlite3');
 
 db.serialize(function() {
-	db.run("CREATE TABLE minas (deactivate BOOLEAN, lat REAL, lng REAL)");
+	db.run("CREATE TABLE minas (mina_id INTEGER PRIMARY KEY AUTOINCREMENT,deactivate BOOLEAN, lat REAL, lng REAL)");
 	db.run("CREATE TABLE zonas (zona_id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT)");
 	db.run("CREATE TABLE cordenadas_zonas (zona_id INTEGER, lat REAL, lng REAL,FOREIGN KEY(zona_id) REFERENCES zonas(zona_id)) ");
 
 	var sql_minas = db.prepare("INSERT INTO minas (deactivate,lat,lng) VALUES (?,?,?)");
-	sql_minas.run(true,4.791610,-75.383090)
-	sql_minas.run(false,4.791610,-75.384090)
-	sql_minas.run(true,4.781610,-75.384090)
-	sql_minas.run(false,4.790979209027877,-75.399169921875)
+	sql_minas.run(1,4.791610,-75.383090)
+	sql_minas.run(0,4.791610,-75.384090)
+	sql_minas.run(1,4.781610,-75.384090)
+	sql_minas.run(0,4.790979209027877,-75.399169921875)
 	sql_minas.finalize();
 
 	var zona_id = 1;

@@ -12,6 +12,9 @@ var form_bomb = document.querySelector("#bomb"),
 		type: 'poly'
 	}
 
+var markers = []
+var polygons = []
+
 function getData(){
 	$.get( "/zonas", function( res_zonas ) {
 		console.log(res_zonas)
@@ -91,6 +94,7 @@ function cercar_zona(positions){
 	if(con_minas) polygon.setOptions({fillColor: '#FF0000',strokeColor: '#FF0000'})
 
 	polygon.setMap(map);
+	polygons.push(polygon)
 
 	var nueva_zona = {
 		positions:positions,
@@ -103,7 +107,7 @@ function cercar_zona(positions){
 		data:JSON.stringify(nueva_zona),
 		contentType:"application/json; charset=utf-8",
 		dataType:"json",
-		success: function(){
+		success: function(response){
 			console.log(response)
 		}
 	})
@@ -128,25 +132,58 @@ function ubicar_bomba(position){
 		shape: shape,
 		map: map,
 		icon:icon,
-		draggable: true,
+		draggable: false,
 		animation: google.maps.Animation.DROP,
 
 		title: 'Nueva Mina '
 	});
 	marker.addListener('click', actionBomb.bind(marker));
-	var nueva_mina = {deactivate:false,position:position}
+	var nueva_mina = {deactivate:0,position:position}
 	minas.push(nueva_mina)
+	markers.push(marker)
 	$.ajax({
 		url:"/mina",
 		type:"POST",
 		data:JSON.stringify(nueva_mina),
 		contentType:"application/json; charset=utf-8",
 		dataType:"json",
-		success: function(){
+		success: function(response){
 			console.log(response)
 		}
 	})
 
+}
+
+function re_draw_zones(){
+	console.log("re_draw_zones")
+	polygons.forEach(function(e){
+		e.setMap(null)
+	})
+	zonas.forEach(function(zona){
+	var polygon = new google.maps.Polygon({
+		paths: zona.positions,
+		strokeColor: 'green',
+		strokeOpacity: 0.8,
+		strokeWeight: 2,
+		fillColor: 'green',
+		fillOpacity: 0.35
+	});
+	var con_minas = false
+
+	minas.forEach(function (mina,index) {
+		mina.position
+		var p = new google.maps.LatLng(mina.position.lat,mina.position.lng)
+		var bool = google.maps.geometry.poly.containsLocation(p, polygon)
+		if(bool && mina.deactivate){
+			con_minas = true
+		}
+	})
+
+	if(con_minas) polygon.setOptions({fillColor: '#FF0000',strokeColor: '#FF0000'})
+
+	polygon.setMap(map);
+	polygons.push(polygon)
+})
 }
 
 function initMap() {
@@ -181,10 +218,11 @@ function initMap() {
 		if(con_minas) polygon.setOptions({fillColor: '#FF0000',strokeColor: '#FF0000'})
 
 		polygon.setMap(map);
+		polygons.push(polygon)
 	})
 
 	minas.forEach(function (mina,index) {
-		var url = mina.deactivate ? "images/bomb_deactivate.png" : "images/people.png"
+		var url = mina.deactivate ? "images/people.png" : "images/bomb_deactivate.png"
 
 		var icon = {
 			url: url,
@@ -201,12 +239,13 @@ function initMap() {
 			shape: shape,
 			map: map,
 			icon:icon,
-			draggable: true,
+			draggable: false,
 			animation: google.maps.Animation.DROP,
 
 			title: 'Mina ' + index
 		});
 		marker.addListener('click', actionBomb.bind(marker));
+		markers.push(marker)
 	})
 
 	google.maps.event.addListener(map, 'mousemove', function(event) {
@@ -246,18 +285,38 @@ function initMap() {
 }
 
 function actionBomb(event) {
-	if (this.getAnimation() !== null) {
+	console.log(event)
+	/*if (this.getAnimation() !== null) {
 		this.setAnimation(null);
 	} else {
 		this.setAnimation(google.maps.Animation.BOUNCE);
-	}
-	if(confirm('Desactivar?')){
-		alert("Desactivando")
-		var mina = minas.filter(function(e){
-			console.log(e.position)
-			return (e.position.lat == event.latLng.lat()  && e.position.lng == event.latLng.lng())
-		})
-		console.log(mina)
+	}*/
+	var mina = minas.filter(function(e){return (e.position.lat == event.latLng.lat()  && e.position.lng == event.latLng.lng())})
+	mina = mina[0]
+	console.log(mina)
+	if(!mina.deactivate){
+		if(confirm('Desactivar?')){
+			mina.deactivate = 1
+			var maker_mina = markers.filter(function(e){return (e.position.lat() == event.latLng.lat()  && e.position.lng() == event.latLng.lng())})
 
+
+			maker_mina = maker_mina[0]
+			maker_mina.icon.url = "images/people.png"
+			maker_mina.changed()
+			//map.changed()
+			map.setCenter(maker_mina.getPosition())
+
+		}
 	}
+	$.ajax({
+		url:"/mina",
+		type:"PUT",
+		data:JSON.stringify({mina_id:mina.mina_id}),
+		contentType:"application/json; charset=utf-8",
+		dataType:"json",
+		success: function(response){
+			console.log(response)
+		}
+	})
+	console.log(mina)
 }
