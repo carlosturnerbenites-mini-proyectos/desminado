@@ -92,6 +92,22 @@ function cercar_zona(positions){
 
 	polygon.setMap(map);
 
+	var nueva_zona = {
+		positions:positions,
+		nombre: "Nombre Estatico"
+	}
+
+	$.ajax({
+		url:"/zona",
+		type:"POST",
+		data:JSON.stringify(nueva_zona),
+		contentType:"application/json; charset=utf-8",
+		dataType:"json",
+		success: function(){
+			console.log(response)
+		}
+	})
+
 	positions_new_zone = []
 }
 
@@ -120,9 +136,17 @@ function ubicar_bomba(position){
 	marker.addListener('click', actionBomb.bind(marker));
 	var nueva_mina = {deactivate:false,position:position}
 	minas.push(nueva_mina)
-	$.post( "/minas",JSON.stringify(nueva_mina),function( response ) {
-		console.log(response)
+	$.ajax({
+		url:"/mina",
+		type:"POST",
+		data:JSON.stringify(nueva_mina),
+		contentType:"application/json; charset=utf-8",
+		dataType:"json",
+		success: function(){
+			console.log(response)
+		}
 	})
+
 }
 
 function initMap() {

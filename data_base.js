@@ -3,7 +3,7 @@ var db = new sqlite3.Database('db.sqlite3');
 
 db.serialize(function() {
 	db.run("CREATE TABLE minas (deactivate BOOLEAN, lat REAL, lng REAL)");
-	db.run("CREATE TABLE zonas (zona_id INTEGER PRIMARY KEY, nombre TEXT)");
+	db.run("CREATE TABLE zonas (zona_id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT)");
 	db.run("CREATE TABLE cordenadas_zonas (zona_id INTEGER, lat REAL, lng REAL,FOREIGN KEY(zona_id) REFERENCES zonas(zona_id)) ");
 
 	var sql_minas = db.prepare("INSERT INTO minas (deactivate,lat,lng) VALUES (?,?,?)");
@@ -15,9 +15,17 @@ db.serialize(function() {
 
 	var zona_id = 1;
 
-	var sql_zonas = db.prepare("INSERT INTO zonas (zona_id,nombre) VALUES (?,?)");
+	/*var sql_zonas = db.prepare("INSERT INTO zonas (zona_id,nombre) VALUES (?,?)");
 	sql_zonas.run(zona_id,"Zona 1")
-	sql_zonas.finalize();
+	sql_zonas.finalize();*/
+	var sql_zonas = "INSERT INTO zonas (nombre) VALUES (?)"
+	var params_sql_zonas = ["Zona 1"]
+	db.run(sql_zonas,params_sql_zonas,function(){
+		console.log(".-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-")
+		console.log(this.lastID)
+		console.log(".-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-")
+	})
+	//sql_zonas.finalize();
 
 	var sql_cordenadas_zonas = db.prepare("INSERT INTO cordenadas_zonas (zona_id,lat,lng) VALUES (?,?,?)");
 	sql_cordenadas_zonas.run(zona_id,4.80234483976469,-75.3841495513916)
