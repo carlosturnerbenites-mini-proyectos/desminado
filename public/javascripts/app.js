@@ -80,6 +80,8 @@ function cercar_zona(positions){
 		fillColor: 'green',
 		fillOpacity: 0.35
 	})
+	polygon.addListener('click', showArrays);
+
 	var con_minas = false
 
 	minas.forEach(function (mina,index) {
@@ -168,6 +170,7 @@ function re_draw_zones(){
 		fillColor: 'green',
 		fillOpacity: 0.35
 	});
+	polygon.addListener('click', showArrays);
 	var con_minas = false
 
 	minas.forEach(function (mina,index) {
@@ -186,14 +189,22 @@ function re_draw_zones(){
 })
 }
 
+function showArrays(event) {
+	console.warn("click polygon")
+	event.preventDefault()
+}
+
 function initMap() {
 	var myLatLng = {lat: 4.791610, lng: -75.383090}
 
 	map = new google.maps.Map(document.getElementById('map'), {
-		zoom: 15,
+		zoom: 6,
 		center: myLatLng
 		//disableDefaultUI: true
 	})
+	setTimeout(function(){
+		map.setZoom(13)
+	},4000)
 
 	zonas.forEach(function(zona){
 		var polygon = new google.maps.Polygon({
